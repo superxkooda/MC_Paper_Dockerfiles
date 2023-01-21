@@ -1,0 +1,29 @@
+# Name of the service being setup
+NAME=paper
+
+# Paper version and build to use.
+VERSION=1.19.3
+BUILD=380
+
+JAVA_VERSION=17
+
+ALPINE_TAG=3.17.1
+
+# The name of the volume to be used.
+VOLUME_NAME=${NAME}
+
+# Set the amount of memory you wish to allocate for the server here. 16G is what I am allocating for my system
+RAM=16G
+
+# Is sudo needed to run Docker commands?
+NEED_SUDO=false
+
+# Default docker port is 25565
+PORT=25565
+
+# By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
+# By setting this to true you will not need to modify the txt file on the volume after first run.
+EULA=false
+
+# Docker tag to be used. https://docs.docker.com/engine/reference/commandline/tag/
+TAG=${NAME}:${VERSION}
