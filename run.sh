@@ -5,5 +5,5 @@ source ${scriptDir}/settings;
 # Use -d as the arg to run detached.
 mode=${1:-""}
 
-docker run --rm -it ${mode} --name ${NAME} -p ${PORT}:${PORT} \
+docker run --rm -it ${mode} --name ${NAME} -p ${PORT}:${PORT} -p ${MAP_PORT} \
     -v ${VOLUME_NAME}:/${VOLUME_NAME} ${NAME}:${VERSION}; 

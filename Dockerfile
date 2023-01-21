@@ -15,7 +15,7 @@ ARG appDIR=/app
 RUN mkdir -p ${appDIR} /${volumeName} \
     && chown -R ${uid}:${gid} ${appDIR} \
     && chown -R ${uid}:${gid} /${volumeName}
-RUN apk add bash vim git curl openjdk${javaVersion}-jre-headless
+RUN apk add bash vim git curl openjdk${javaVersion}-jre
 
 RUN adduser paper -u ${uid} -s /bin/bash -D
 USER paper
