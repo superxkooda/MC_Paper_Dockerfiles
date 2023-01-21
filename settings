@@ -9,7 +9,8 @@ JAVA_VERSION=17
 
 ALPINE_TAG=3.17.1
 
-# The name of the volume to be used.
+# The name of the volume to be used. It is handy to change this when testing out
+# new plugins or versions of paper to keep your current worlds safe.
 VOLUME_NAME=${NAME}
 
 # Set the amount of memory you wish to allocate for the server here. 16G is what I am allocating for my system
@@ -21,13 +22,17 @@ NEED_SUDO=false
 # Default minecraft server port is 25565
 PORT=25565
 
-# Mapping dynmap to port 80 for ease of use at the moment.
-# dynmap is not automatically installed, this is here if you need it.
-MAP_PORT=80:8123
-
 # By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
 # By setting this to true you will not need to modify the txt file on the volume after first run.
 EULA=false
 
 # Docker tag to be used. https://docs.docker.com/engine/reference/commandline/tag/
 TAG=${NAME}:${VERSION}
+
+# Mapping dynmap to port 80 for ease of use at the moment.
+# dynmap is not automatically installed, this is here if you need it.
+MAP_PORT=80:8123
+
+# This will setup my configs that are in the repo. These are specific to my system and setup.
+# May not be sutable for your needs.
+USE_MAINTAINER_CONFIGS=false

@@ -1,15 +1,6 @@
 #!/bin/bash
 scriptDir=$( dirname "${BASH_SOURCE[0]}" );
-source ${scriptDir}/settings;
-
-addSudo () {
-    if [ "${NEED_SUDO}" == true ]; then
-        echo "sudo $@";
-        return 0;
-    fi
-    echo "$@";
-    return 0;
-}
+source ${scriptDir}/common.sh;
 
 build () {
     local buildArgs="\
@@ -22,9 +13,13 @@ build () {
     --build-arg volumeName=${VOLUME_NAME} \
     ";
 
-    local listVolume=$(addSudo "docker volume ls");
-    local createVolume=$(addSudo "docker volume create ${VOLUME_NAME}");
-    local build=$(addSudo "docker build -t ${TAG} ${buildArgs} -f ${scriptDir}/Dockerfile ${scriptDir}");
+    printf "Building Docker image ...\n";
+    $(addSudo) docker build -t ${TAG} ${buildArgs} -f ${scriptDir}/Dockerfile ${scriptDir};
+
+    local listVolume="$(addSudo) docker volume ls";
+    local createVolume="$(addSudo) docker volume create ${VOLUME_NAME}";
+    local dockerRun="$(addSudo) docker run  --user root --entrypoint bash \
+        --rm -it -v ${VOLUME_NAME}:/paper ${TAG} -c";
 
     volume=$(${listVolume});
     grep -q ${VOLUME_NAME} <<< ${volume};
@@ -38,27 +33,24 @@ build () {
             echo "Volume creation failed!";
             exit 1
         fi
-        local setPerms=$( \
-            addSudo \
-            "docker run --rm -it -v ${VOLUME_NAME}:/paper alpine:${ALPINE_TAG} sh -c 'chown -R 1000:1000 /paper'" \
-        );
-        eval "${setPerms}";
     fi
 
     if [ "${EULA}" == "true" ] || [ "${EULA}" == "TRUE" ]; then
         printf "\tSetting eula.txt to true\n";
-        local setEula=$( \
-            addSudo \
-            "docker run --rm -it -v ${VOLUME_NAME}:/paper alpine:${ALPINE_TAG} sh -c 'echo eula=true > /paper/eula.txt && chown 1000:1000 /paper/eula.txt'" \
-        );
-        eval "${setEula}";
+            eval "${dockerRun} 'echo eula=true > /paper/eula.txt'";
     fi
 
-    printf "Building Docker image ...\n";
 
-    ${build};
+    if [ "${USE_MAINTAINER_CONFIGS}" == "true" ] || [ "${USE_MAINTAINER_CONFIGS}" == "TRUE" ]; then
+        printf "\tCopying the repo maintainer's configs for paper and plugins.\n\tI hope you know what you are doing ;)\n";
+        eval "${dockerRun} 'cp -av /app/maintainers_configs/* /paper/'";
+    fi
 
-    return $?
+    dynmapURL="https://mediafilez.forgecdn.net/files/4167/109/Dynmap-3.5-beta-1-spigot.jar"
+    echo "Downloading dynmap plugin. This will go into the volume.";
+    eval "${dockerRun} 'mkdir -p /paper/plugins'";
+    eval "${dockerRun} 'cd /paper/plugins && wget ${dynmapURL}'";
+    eval "${dockerRun} 'chown -R paper:paper /paper'";
 }
 
 build
